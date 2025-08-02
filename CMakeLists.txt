@@ -8,7 +8,10 @@ pkg_check_modules(SDL2 REQUIRED sdl2)
 
 include_directories(${SDL2_INCLUDE_DIRS})
 
-add_executable(ArduinoRoboticArm main.cpp)
+add_executable(ArduinoRoboticArm main.cpp
+        Arm.cpp
+        Arm.h
+        Servo.h)
 
 
 target_link_libraries(ArduinoRoboticArm ${SDL2_LIBRARIES})
