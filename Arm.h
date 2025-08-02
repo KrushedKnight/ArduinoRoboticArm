@@ -18,8 +18,8 @@ public:
     Servo wrist_rot;
     Servo gripper;
 
-    static std::vector<char> codes;
-    std::vector<Servo*> servos{6};
+    std::vector<char> codes;
+    std::vector<Servo*> servos;
 
     Arm();
 };
