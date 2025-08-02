@@ -9,7 +9,6 @@
 
 struct Servo {
     int position;
-    int setpoint;
     int minPos;
     int maxPos;
 };

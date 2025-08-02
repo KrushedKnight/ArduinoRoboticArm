@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
+#include "Arm.h"
+
 int openSerial(const std::string& device) {
     int fd = open(device.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
@@ -77,14 +79,13 @@ int main() {
 
 
     int serialPort = openSerial("/dev/ttyACM0");
-    usleep(50000);
+    sleep(2);
 
-    int sAngle = 45;
+
     std::string data;
-
-
     bool running = true;
     SDL_Event event;
+    Arm arm = Arm();
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -93,14 +94,10 @@ int main() {
             }
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_w) {
-                    sAngle++;
-                    data = "s" + std::to_string(sAngle) + "\n";
-                    writeCommand(serialPort, data);
+                    arm.shoulder.position++;
                 }
                 if (event.key.keysym.sym == SDLK_s) {
-                    sAngle--;
-                    data = "s" + std::to_string(sAngle) + "\n";
-                    writeCommand(serialPort, data);
+                    arm.shoulder.position--;
                 }
                 else if (event.key.keysym.sym == SDLK_ESCAPE) {
                     running = false;
@@ -111,6 +108,8 @@ int main() {
                     std::cout << "W key released\n";
                 }
             }
+
+
         }
         SDL_Delay(5);  // prevent busy-waiting
     }
