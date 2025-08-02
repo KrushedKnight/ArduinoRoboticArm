@@ -60,7 +60,7 @@ void writeCommand(int serialPort, std::string &data) {
     std::cout << data << std::endl;
 }
 
-void moveServo(Servo servo, int amount, int serialPort) {
+void moveServo(Servo &servo, int amount, int serialPort) {
     servo.position += amount;
     std::string data = servo.code + std::to_string(servo.position) + "\n";
     writeCommand(serialPort, data);
@@ -101,11 +101,11 @@ int main() {
             }
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_w) {
-                    moveServo(arm.shoulder, 1, serialPort);
+                    moveServo(arm.shoulder, 3, serialPort);
 
                 }
                 if (event.key.keysym.sym == SDLK_s) {
-                    moveServo(arm.shoulder, -1, serialPort);
+                    moveServo(arm.shoulder, -3, serialPort);
                 }
                 if (event.key.keysym.sym == SDLK_d) {
                     moveServo(arm.base, 1, serialPort);

@@ -11,7 +11,11 @@ include_directories(${SDL2_INCLUDE_DIRS})
 add_executable(ArduinoRoboticArm main.cpp
         Arm.cpp
         Arm.h
-        Servo.h)
+        Servo.h
+        IKSolver.cpp
+        IKSolver.h
+        Constants.cpp
+        Constants.h)
 
 
 target_link_libraries(ArduinoRoboticArm ${SDL2_LIBRARIES})
