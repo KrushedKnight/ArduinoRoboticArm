@@ -87,6 +87,7 @@ int main() {
     SDL_Event event;
     Arm arm = Arm();
 
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -94,24 +95,20 @@ int main() {
             }
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_w) {
-                    arm.shoulder.position++;
+                    arm.shoulder.position += 2;
                 }
                 if (event.key.keysym.sym == SDLK_s) {
-                    arm.shoulder.position--;
+                    arm.shoulder.position -= 2;
                 }
                 else if (event.key.keysym.sym == SDLK_ESCAPE) {
                     running = false;
                 }
             }
-            else if (event.type == SDL_KEYUP) {
-                if (event.key.keysym.sym == SDLK_w) {
-                    std::cout << "W key released\n";
-                }
-            }
-
-
         }
-        SDL_Delay(5);  // prevent busy-waiting
+        SDL_Delay(10);
+        data = "s" + std::to_string(arm.shoulder.position) + "\n";
+        writeCommand(serialPort, data);
+
     }
 
     return 0;
