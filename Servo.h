@@ -8,6 +8,7 @@
 
 
 struct Servo {
+    char code;
     int position;
     int minPos;
     int maxPos;

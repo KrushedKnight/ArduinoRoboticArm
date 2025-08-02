@@ -60,9 +60,11 @@ void writeCommand(int serialPort, std::string &data) {
     std::cout << data << std::endl;
 }
 
-void moveServo(Servo servo, int serialPort) {
-    servo.position++;
-    std::string data = "s" + std::to_string(servo.position) + "\n";
+void moveServo(Servo servo, int amount, int serialPort) {
+    servo.position += amount;
+    std::string data = servo.code + std::to_string(servo.position) + "\n";
+    writeCommand(serialPort, data);
+
 }
 
 int main() {
@@ -99,45 +101,41 @@ int main() {
             }
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_w) {
-                    arm.shoulder.position += 1;
-                    data = "s" + std::to_string(arm.shoulder.position) + "\n";
-                    writeCommand(serialPort, data);
+                    moveServo(arm.shoulder, 1, serialPort);
 
                 }
                 if (event.key.keysym.sym == SDLK_s) {
-                    arm.shoulder.position -= 1;
-                    data = "s" + std::to_string(arm.shoulder.position) + "\n";
-                    writeCommand(serialPort, data);
+                    moveServo(arm.shoulder, -1, serialPort);
                 }
                 if (event.key.keysym.sym == SDLK_d) {
-                    arm.base.position += 1;
-                    data = "b" + std::to_string(arm.base.position) + "\n";
-                    writeCommand(serialPort, data);
+                    moveServo(arm.base, 1, serialPort);
                 }
                 if (event.key.keysym.sym == SDLK_a) {
-                    arm.base.position -= 1;
-                    data = "b" + std::to_string(arm.base.position) + "\n";
-                    writeCommand(serialPort, data);
+                    moveServo(arm.base, -1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_t) {
+                    moveServo(arm.elbow, 1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_g) {
+                    moveServo(arm.elbow, -1, serialPort);
                 }
                 if (event.key.keysym.sym == SDLK_UP) {
-                    arm.elbow.position += 1;
-                    data = "e" + std::to_string(arm.elbow.position) + "\n";
-                    writeCommand(serialPort, data);
+                    moveServo(arm.wrist_ver, 1, serialPort);
                 }
                 if (event.key.keysym.sym == SDLK_DOWN) {
-                    arm.elbow.position -= 1;
-                    data = "e" + std::to_string(arm.elbow.position) + "\n";
-                    writeCommand(serialPort, data);
+                    moveServo(arm.wrist_ver, -1, serialPort);
                 }
-                if (event.key.keysym.sym == SDLK_a) {
-                    arm.base.position -= 1;
-                    data = "b" + std::to_string(arm.base.position) + "\n";
-                    writeCommand(serialPort, data);
+                if (event.key.keysym.sym == SDLK_RIGHT) {
+                    moveServo(arm.wrist_rot, 1, serialPort);
                 }
-                if (event.key.keysym.sym == SDLK_a) {
-                    arm.base.position -= 1;
-                    data = "b" + std::to_string(arm.base.position) + "\n";
-                    writeCommand(serialPort, data);
+                if (event.key.keysym.sym == SDLK_LEFT) {
+                    moveServo(arm.wrist_rot, -1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_e) {
+                    moveServo(arm.gripper, 1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_q) {
+                    moveServo(arm.gripper, -1, serialPort);
                 }
 
                 else if (event.key.keysym.sym == SDLK_ESCAPE) {

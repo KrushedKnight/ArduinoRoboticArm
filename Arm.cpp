@@ -6,12 +6,12 @@
 
 
 Arm::Arm() {
-    base       = {90, 0, 180};
-    shoulder   = {45,  15, 165};
-    elbow      = {180, 0, 180};
-    wrist_ver  = {180,  0, 180};
-    wrist_rot  = {90, 0, 180};
-    gripper    = {10, 10, 73};
+    base       = {'b',90, 0, 180};
+    shoulder   = {'s',45,  15, 165};
+    elbow      = {'e',180, 0, 180};
+    wrist_ver  = {'v',180,  0, 180};
+    wrist_rot  = {'r',90, 0, 180};
+    gripper    = {'g',10, 10, 73};
 
 
     servos.push_back(&base);
