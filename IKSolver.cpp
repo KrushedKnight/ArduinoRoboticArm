@@ -20,13 +20,12 @@ Arm IKSolver::analyticalSolve(double x, double y, double z, double phi) {
 
     double d = sqrt(P_x*P_x + P_z*P_z);
 
+    //TODO: check negative/positve conventions
     double elbowAngle = acos((d * d - Constants::SHOULDER_LENGTH * Constants::SHOULDER_LENGTH - Constants::ELBOW_LENGTH * Constants::ELBOW_LENGTH) / 2 * Constants::SHOULDER_LENGTH * Constants::ELBOW_LENGTH);
     double shoulderAngle = acos((Constants::SHOULDER_LENGTH * Constants::SHOULDER_LENGTH + d * d - Constants::ELBOW_LENGTH * Constants::ELBOW_LENGTH) / 2 * Constants::SHOULDER_LENGTH * Constants::ELBOW_LENGTH);
 
-
-
-
-
-
+    //90 placeholder - make level with object
+    Arm result{baseAngle, shoulderAngle, elbowAngle, phi, 90, Constants::GRIPPER_OPEN};
+    return result;
 
 }

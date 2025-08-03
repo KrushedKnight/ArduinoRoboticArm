@@ -18,10 +18,10 @@ public:
     Servo wrist_rot;
     Servo gripper;
 
-    std::vector<char> codes;
     std::vector<Servo*> servos;
 
     Arm();
+    Arm(double base, double shoulder, double elbow, double wrist_ver, double wrist_rot, double gripper);
 };
 
 

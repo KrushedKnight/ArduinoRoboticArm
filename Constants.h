@@ -11,6 +11,10 @@ namespace Constants {
     extern const double SHOULDER_LENGTH;
     extern const double ELBOW_LENGTH;
     extern const double WRIST_LENGTH;
+    extern const double GRIPPER_LENGTH;
+
+    extern const double GRIPPER_OPEN;
+    extern const double GRIPPER_CLOSED;
 }
 
 

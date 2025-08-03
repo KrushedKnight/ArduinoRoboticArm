@@ -21,6 +21,14 @@ Arm::Arm() {
     servos.push_back(&wrist_rot);
     servos.push_back(&gripper);
 
-    codes = {'b', 's', 'e', 'v', 'r', 'g'};
 
+}
+
+Arm::Arm(double base, double shoulder, double elbow, double wrist_ver, double wrist_rot, double gripper) {
+    Arm::base.position = base;
+    Arm::shoulder.position = shoulder;
+    Arm::elbow.position = elbow;
+    Arm::wrist_ver.position = wrist_ver;
+    Arm::wrist_rot.position = wrist_rot;
+    Arm::gripper.position = gripper;
 }
