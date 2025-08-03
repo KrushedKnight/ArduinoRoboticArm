@@ -5,7 +5,7 @@
 #include "Constants.h"
 
 namespace Constants {
-    const double shoulderLength = 1;
-    const double elbowLength = 1;
-    const double wristLength = 1;
+    const double SHOULDER_LENGTH = 1;
+    const double ELBOW_LENGTH = 1;
+    const double WRIST_LENGTH = 1;
 }

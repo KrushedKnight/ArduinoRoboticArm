@@ -8,9 +8,9 @@
 
 
 namespace Constants {
-    extern const double shoulderLength;
-    extern const double elbowLength;
-    extern const double wristLength;
+    extern const double SHOULDER_LENGTH;
+    extern const double ELBOW_LENGTH;
+    extern const double WRIST_LENGTH;
 }
 
 
