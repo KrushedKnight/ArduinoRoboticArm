@@ -15,6 +15,13 @@ namespace Constants {
 
     extern const double GRIPPER_OPEN;
     extern const double GRIPPER_CLOSED;
+
+
+    extern const int BASE_OFFSET;
+    extern const int SHOULDER_OFFSET;
+    extern const int ELBOW_OFFSET;
+    extern const int WRIST_OFFSET;
+    extern const int GRIPPER_OFFSET;
 }
 
 

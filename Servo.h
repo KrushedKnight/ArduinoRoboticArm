@@ -10,6 +10,7 @@
 struct Servo {
     char code;
     int position;
+    int offset;
     int minPos;
     int maxPos;
 };

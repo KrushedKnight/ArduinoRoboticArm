@@ -12,4 +12,10 @@ namespace Constants {
 
     const double GRIPPER_OPEN = 10;
     const double GRIPPER_CLOSED = 70;
+
+    const int BASE_OFFSET = 65;
+    const int SHOULDER_OFFSET = 0;
+    const int ELBOW_OFFSET = 90;
+    const int WRIST_OFFSET = 90;
+
 }

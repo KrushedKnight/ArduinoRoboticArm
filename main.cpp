@@ -67,6 +67,8 @@ void moveServo(Servo &servo, int amount, int serialPort) {
 
 }
 
+
+
 int main() {
     if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) < 0) {
         std::cerr << "Error SDL_Init\n";
