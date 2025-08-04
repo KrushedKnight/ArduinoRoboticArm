@@ -62,12 +62,17 @@ void writeCommand(int serialPort, std::string &data) {
 
 void moveServo(Servo &servo, int amount, int serialPort) {
     servo.position += amount;
-    std::string data = servo.code + std::to_string(servo.position) + "\n";
+    std::string data = servo.code + std::to_string(servo.offset + servo.position) + "\n";
     writeCommand(serialPort, data);
 
 }
 
-
+void applyArmPosition(Arm arm, int serialPort) {
+    for (Servo* servo : arm.servos) {
+        std::string data = servo-> code + std::to_string(servo->offset + servo-> position) + "\n";
+        writeCommand(serialPort, data);
+    }
+}
 
 int main() {
     if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) < 0) {
