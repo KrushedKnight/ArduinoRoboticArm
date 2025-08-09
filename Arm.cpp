@@ -26,11 +26,20 @@ Arm::Arm() {
 
 }
 
-Arm::Arm(double base, double shoulder, double elbow, double wrist_ver, double wrist_rot, double gripper) {
-    Arm::base.position = base;
-    Arm::shoulder.position = shoulder;
-    Arm::elbow.position = elbow;
-    Arm::wrist_ver.position = wrist_ver;
-    Arm::wrist_rot.position = wrist_rot;
-    Arm::gripper.position = gripper;
+Arm::Arm(int basePos, int shoulderPos, int elbowPos, int wrist_verPos, int wrist_rotPos, int gripperPos) {
+    base       = {'b',basePos, Constants::BASE_OFFSET, 0, 270};
+    shoulder   = {'s',shoulderPos,  Constants::SHOULDER_OFFSET, 15, 165};
+    elbow      = {'e',elbowPos, Constants::ELBOW_OFFSET, 0, 180};
+    wrist_ver  = {'v',wrist_verPos,  Constants::WRIST_OFFSET, 0, 180};
+    wrist_rot  = {'r',wrist_rotPos, 0, 0, 180, };
+    gripper    = {'g',gripperPos, 0, 10, 73};
+
+
+    servos.push_back(&base);
+    servos.push_back(&shoulder);
+    servos.push_back(&elbow);
+    servos.push_back(&wrist_ver);
+    servos.push_back(&wrist_rot);
+    servos.push_back(&gripper);
+
 }

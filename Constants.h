@@ -8,13 +8,18 @@
 
 
 namespace Constants {
+    extern const double BASE_HEIGHT;
     extern const double SHOULDER_LENGTH;
     extern const double ELBOW_LENGTH;
     extern const double WRIST_LENGTH;
-    extern const double GRIPPER_LENGTH;
+
+    extern const double MAX_REACH;
 
     extern const double GRIPPER_OPEN;
     extern const double GRIPPER_CLOSED;
+
+    extern const double RADIANS_TO_DEGREES;
+    extern const double DEGREES_TO_RADIANS;
 
 
     extern const int BASE_OFFSET;

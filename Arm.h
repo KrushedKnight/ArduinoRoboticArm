@@ -21,7 +21,7 @@ public:
     std::vector<Servo*> servos;
 
     Arm();
-    Arm(double base, double shoulder, double elbow, double wrist_ver, double wrist_rot, double gripper);
+    Arm(int base, int shoulder, int elbow, int wrist_ver, int wrist_rot, int gripper);
 };
 
 

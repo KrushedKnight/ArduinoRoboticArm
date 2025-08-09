@@ -10,6 +10,7 @@
 #include <sys/ioctl.h>
 
 #include "Arm.h"
+#include "IKSolver.h"
 
 int openSerial(const std::string& device) {
     int fd = open(device.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
@@ -99,6 +100,7 @@ int main() {
     bool running = true;
     SDL_Event event;
     Arm arm = Arm();
+    IKSolver ik_solver;
 
 
     while (running) {
@@ -108,7 +110,9 @@ int main() {
             }
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_w) {
-                    moveServo(arm.shoulder, 3, serialPort);
+                    // moveServo(arm.shoulder, 3, serialPort);
+                    Arm result = ik_solver.analyticalSolve(0.1,0.2,0.2, 15);
+                    applyArmPosition(result, serialPort);
 
                 }
                 if (event.key.keysym.sym == SDLK_s) {
