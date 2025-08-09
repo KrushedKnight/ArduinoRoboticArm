@@ -20,6 +20,7 @@ Arm IKSolver::analyticalSolve(double x, double y, double z, double phi) {
     }
     z = z - Constants::BASE_HEIGHT;
     phi = phi * Constants::DEGREES_TO_RADIANS;
+
     double baseAngle = atan(y/x);
     double r = sqrt(x*x + y*y);
 

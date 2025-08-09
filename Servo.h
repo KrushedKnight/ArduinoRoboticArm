@@ -9,6 +9,7 @@
 
 struct Servo {
     char code;
+    bool inverted;
     int position;
     int offset;
     int minPos;

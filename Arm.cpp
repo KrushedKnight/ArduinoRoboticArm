@@ -8,12 +8,12 @@
 
 
 Arm::Arm() {
-    base       = {'b',90, Constants::BASE_OFFSET, 0, 270};
-    shoulder   = {'s',45,  Constants::SHOULDER_OFFSET, 15, 165};
-    elbow      = {'e',180, Constants::ELBOW_OFFSET, 0, 180};
-    wrist_ver  = {'v',180,  Constants::WRIST_OFFSET, 0, 180};
-    wrist_rot  = {'r',90, 0, 0, 180, };
-    gripper    = {'g',10, 0, 10, 73};
+    base       = {'b',false, 0, Constants::BASE_OFFSET, 0, 270};
+    shoulder   = {'s',false, 45,  Constants::SHOULDER_OFFSET, 15, 165};
+    elbow      = {'e',false,0, Constants::ELBOW_OFFSET, 0, 180};
+    wrist_ver  = {'v',true,  0, Constants::WRIST_OFFSET, 0, 180};
+    wrist_rot  = {'r',false, 90, 0, 0, 180, };
+    gripper    = {'g',false, 10, 0, 10, 73};
 
 
     servos.push_back(&base);
@@ -27,12 +27,12 @@ Arm::Arm() {
 }
 
 Arm::Arm(int basePos, int shoulderPos, int elbowPos, int wrist_verPos, int wrist_rotPos, int gripperPos) {
-    base       = {'b',basePos, Constants::BASE_OFFSET, 0, 270};
-    shoulder   = {'s',shoulderPos,  Constants::SHOULDER_OFFSET, 15, 165};
-    elbow      = {'e',elbowPos, Constants::ELBOW_OFFSET, 0, 180};
-    wrist_ver  = {'v',wrist_verPos,  Constants::WRIST_OFFSET, 0, 180};
-    wrist_rot  = {'r',wrist_rotPos, 0, 0, 180, };
-    gripper    = {'g',gripperPos, 0, 10, 73};
+    base       = {'b',false, basePos, Constants::BASE_OFFSET, 0, 270};
+    shoulder   = {'s',false,shoulderPos,  Constants::SHOULDER_OFFSET, 15, 165};
+    elbow      = {'e',false, elbowPos, Constants::ELBOW_OFFSET, 0, 180};
+    wrist_ver  = {'v',true, wrist_verPos,  Constants::WRIST_OFFSET, 0, 180};
+    wrist_rot  = {'r',false, wrist_rotPos, 0, 0, 180, };
+    gripper    = {'g',false, gripperPos, 0, 10, 73};
 
 
     servos.push_back(&base);
