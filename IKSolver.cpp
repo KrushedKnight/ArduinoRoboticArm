@@ -33,7 +33,7 @@ Arm IKSolver::analyticalSolve(double x, double y, double z, double phi) {
     double shoulderAngle = acos((Constants::SHOULDER_LENGTH * Constants::SHOULDER_LENGTH + d * d - Constants::ELBOW_LENGTH * Constants::ELBOW_LENGTH) / 2 * Constants::SHOULDER_LENGTH * Constants::ELBOW_LENGTH);
 
     //90 placeholder - make level with object
-    Arm result{baseAngle * Constants::RADIANS_TO_DEGREES, shoulderAngle * Constants::RADIANS_TO_DEGREES, elbowAngle * Constants::RADIANS_TO_DEGREES, phi, 90, Constants::GRIPPER_OPEN};
+    Arm result{baseAngle * Constants::RADIANS_TO_DEGREES, shoulderAngle * Constants::RADIANS_TO_DEGREES, elbowAngle * Constants::RADIANS_TO_DEGREES, phi * Constants::RADIANS_TO_DEGREES, 90, Constants::GRIPPER_OPEN};
     return result;
 
 }
