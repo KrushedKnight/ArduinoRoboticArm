@@ -64,6 +64,8 @@ void writeCommand(int serialPort, std::string &data) {
 void moveServo(Servo &servo, int amount, int serialPort) {
     servo.position += amount;
     int inversion = servo.inverted ? -1 : 1;
+    // std::string debug = "" + servo.code + std::to_string(servo.position);
+    // std::cout<<debug;
     std::string data = servo.code + std::to_string(servo.offset + servo.position * inversion) + "\n";
     writeCommand(serialPort, data);
 
@@ -73,7 +75,7 @@ void applyArmPosition(Arm arm, int serialPort) {
     int inversion = 1;
     for (Servo* servo : arm.servos) {
         inversion = servo->inverted ? -1 : 1;
-        std::string data = servo-> code + std::to_string(servo->offset + servo-> position * inversion) + "\n";
+        std::string data = servo-> code + std::to_string(-servo->offset + servo-> position * inversion) + "\n";
         writeCommand(serialPort, data);
     }
 }
@@ -114,8 +116,15 @@ int main() {
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_w) {
                     // moveServo(arm.shoulder, 3, serialPort);
-                    Arm result = ik_solver.analyticalSolve(0,0.2,0.1, -30);
+                    Arm result = ik_solver.analyticalSolve(0,0.1,0.05, 0);
                     applyArmPosition(result, serialPort);
+                    double start = 0.1;
+
+                    // for (double i = 0; i < 0.08; i+= 0.04) {
+                    //     Arm result = ik_solver.analyticalSolve(0,0.1,start - i, 0);
+                    //     applyArmPosition(result, serialPort);
+                    //     sleep(5);
+                    // }
 
                 }
                 if (event.key.keysym.sym == SDLK_s) {
