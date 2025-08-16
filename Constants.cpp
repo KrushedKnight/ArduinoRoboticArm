@@ -12,6 +12,7 @@ namespace Constants {
 
 
     const double MAX_REACH = 0.370;
+    const double MIN_REACH = 0.1;
 
     const double GRIPPER_OPEN = 10;
     const double GRIPPER_CLOSED = 70;

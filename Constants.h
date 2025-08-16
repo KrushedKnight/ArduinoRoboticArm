@@ -14,6 +14,7 @@ namespace Constants {
     extern const double WRIST_LENGTH;
 
     extern const double MAX_REACH;
+    extern const double MIN_REACH;
 
     extern const double GRIPPER_OPEN;
     extern const double GRIPPER_CLOSED;
