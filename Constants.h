@@ -34,6 +34,7 @@ namespace Constants {
     extern const double SHOULDER_MAX;
     extern const double ELBOW_MIN;
     extern const double ELBOW_MAX;
+
 }
 
 
