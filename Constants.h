@@ -28,6 +28,12 @@ namespace Constants {
     extern const int ELBOW_OFFSET;
     extern const int WRIST_OFFSET;
     extern const int GRIPPER_OFFSET;
+
+
+    extern const double SHOULDER_MIN;
+    extern const double SHOULDER_MAX;
+    extern const double ELBOW_MIN;
+    extern const double ELBOW_MAX;
 }
 
 

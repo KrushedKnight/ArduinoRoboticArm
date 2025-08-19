@@ -4,6 +4,8 @@
 
 #include "Constants.h"
 
+#include <math.h>
+
 namespace Constants {
     const double BASE_HEIGHT = 0.06;
     const double SHOULDER_LENGTH = 0.125;
@@ -24,5 +26,10 @@ namespace Constants {
     const int SHOULDER_OFFSET = 0;
     const int ELBOW_OFFSET = 90;
     const int WRIST_OFFSET = 90;
+
+    const double SHOULDER_MIN = 0.001;
+    const double SHOULDER_MAX = M_PI;
+    const double ELBOW_MIN = -M_PI_2;
+    const double ELBOW_MAX = M_PI_2;
 
 }

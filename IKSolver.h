@@ -11,7 +11,6 @@ class IKSolver {
 public:
     Arm analyticalSolve(double x, double y, double z, double phi);
 
-    Arm analyticalSolvePositive(double x, double y, double z, double phi);
 };
 
 
