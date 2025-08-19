@@ -64,12 +64,16 @@
         bool upValid = (shoulderAngleUp >= Constants::SHOULDER_MIN &&
                     shoulderAngleUp <= Constants::SHOULDER_MAX &&
                     elbowAngleUp >= Constants::ELBOW_MIN &&
-                    elbowAngleUp <= Constants::ELBOW_MAX);
+                    elbowAngleUp <= Constants::ELBOW_MAX &&
+                    wristAngleUp >= Constants::WRIST_MIN &&
+                    wristAngleUp <= Constants::WRIST_MAX);
 
         bool downValid = (shoulderAngleDown >= Constants::SHOULDER_MIN &&
                           shoulderAngleDown <= Constants::SHOULDER_MAX &&
                           elbowAngleDown >= Constants::ELBOW_MIN &&
-                          elbowAngleDown <= Constants::ELBOW_MAX);
+                          elbowAngleDown <= Constants::ELBOW_MAX &&
+                          wristAngleDown >= Constants::WRIST_MIN &&
+                          wristAngleDown <= Constants::WRIST_MAX);
 
         if (upValid) {
             shoulderAngle = shoulderAngleUp;

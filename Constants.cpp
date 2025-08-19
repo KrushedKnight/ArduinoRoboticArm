@@ -31,5 +31,7 @@ namespace Constants {
     const double SHOULDER_MAX = M_PI;
     const double ELBOW_MIN = -M_PI_2;
     const double ELBOW_MAX = M_PI_2;
+    const double WRIST_MIN = -M_PI_2;
+    const double WRIST_MAX = M_PI_2;
 
 }

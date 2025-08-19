@@ -118,7 +118,7 @@ int main() {
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_w) {
                     // moveServo(arm.shoulder, 3, serialPort);
-                    Arm result = ik_solver.analyticalSolve(0.1,0.1,0.5, 90);
+                    Arm result = ik_solver.analyticalSolve(0.1,0.1,0.2, 50);
                     applyArmPosition(result, serialPort);
 
                 }
