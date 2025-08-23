@@ -28,13 +28,23 @@
             std::exit(1);
         }
 
+
+
         phi = phi * Constants::DEGREES_TO_RADIANS;
 
         double baseAngle = atan2(y,x);
         double r = sqrt(x*x + y*y);
 
-        double P_x = r - cos(phi) * Constants::WRIST_LENGTH;
-        double P_z = z - sin(phi) * Constants::WRIST_LENGTH;
+        if (baseAngle < Constants::BASE_MIN || baseAngle > Constants::BASE_MAX) {
+            baseAngle += (baseAngle < 0) ? M_PI : -M_PI;
+            r *= -1;
+            phi = M_PI - phi;
+        }
+
+
+
+        double P_x = r;
+        double P_z = z;
 
         double d = sqrt(P_x*P_x + P_z*P_z);
 
@@ -89,6 +99,18 @@
             std::exit(1);
         }
 
+        double verify_x = cos(baseAngle) * (Constants::SHOULDER_LENGTH * cos(shoulderAngle) +
+                                   Constants::ELBOW_LENGTH * cos(shoulderAngle + elbowAngle) +
+                                   Constants::WRIST_LENGTH * cos(shoulderAngle + elbowAngle + wristAngle));
+        double verify_y = sin(baseAngle) * (Constants::SHOULDER_LENGTH * cos(shoulderAngle) +
+                                           Constants::ELBOW_LENGTH * cos(shoulderAngle + elbowAngle) +
+                                           Constants::WRIST_LENGTH * cos(shoulderAngle + elbowAngle + wristAngle));
+        double verify_z = Constants::BASE_HEIGHT + Constants::SHOULDER_LENGTH * sin(shoulderAngle) +
+                         Constants::ELBOW_LENGTH * sin(shoulderAngle + elbowAngle) +
+                         Constants::WRIST_LENGTH * sin(shoulderAngle + elbowAngle + wristAngle);
+
+        std::cout << "Forward kinematics check: (" << verify_x << ", " << verify_y << ", " << verify_z << ")" << std::endl;
+        std::cout << "Position error: " << sqrt(pow(x-verify_x,2) + pow(y-verify_y,2) + pow(z+Constants::BASE_HEIGHT-verify_z,2)) << std::endl;
 
         std::cout << "=== IK Debug ===" << std::endl;
         std::cout << "Target: (" << x << ", " << y << ", " << z << "), phi: " << phi * 180/M_PI << "°" << std::endl;

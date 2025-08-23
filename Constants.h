@@ -36,6 +36,8 @@ namespace Constants {
     extern const double ELBOW_MAX;
     extern const double WRIST_MIN;
     extern const double WRIST_MAX;
+    extern const double BASE_MAX;
+    extern const double BASE_MIN;
 }
 
 

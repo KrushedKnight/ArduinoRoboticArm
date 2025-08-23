@@ -27,11 +27,14 @@ namespace Constants {
     const int ELBOW_OFFSET = 90;
     const int WRIST_OFFSET = 90;
 
+    //TODO: Check all of these
     const double SHOULDER_MIN = 0.001;
     const double SHOULDER_MAX = M_PI;
     const double ELBOW_MIN = -M_PI_2;
     const double ELBOW_MAX = M_PI_2;
     const double WRIST_MIN = -M_PI_2;
     const double WRIST_MAX = M_PI_2;
+    const double BASE_MIN = -60;
+    const double BASE_MAX = 220;
 
 }
