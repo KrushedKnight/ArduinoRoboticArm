@@ -9,6 +9,8 @@
 
 class IKSolver {
 public:
+    bool cosrule(double opposite, double adjacent1, double adjacent2, double &angle);
+
     Arm analyticalSolve(double x, double y, double z, double phi);
 
 };

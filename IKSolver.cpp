@@ -13,6 +13,19 @@
 
     //TODO: write transforms from our plane to actual servo angles
 
+    bool IKSolver::cosrule(double opposite, double adjacent1, double adjacent2, double& angle) {
+        double delta = 2 * adjacent1 * adjacent2;
+
+        if (delta == 0) return false;
+
+        double cos = (adjacent1*adjacent1 + adjacent2*adjacent2 - opposite*opposite) / delta;
+
+        if ((cos > 1) || (cos < -1)) return false;
+
+        angle = acos(cos);
+
+        return true;
+    }
     Arm IKSolver::analyticalSolve(double x, double y, double z, double phi) {
 
         z = z - Constants::BASE_HEIGHT;
@@ -41,33 +54,40 @@
             phi = M_PI - phi;
         }
 
+        double d = sqrt(r*r + z*z);
+        double theta = atan2(y,x);
+        double P_x = d * cos(theta - M_PI_2);
+        double P_y = d * sin(theta - M_PI_2);
+        double P_phi = phi - M_PI_2;
 
+        double xw = P_x - Constants::WRIST_LENGTH * cos(P_phi);
+        double yw = P_y - Constants::WRIST_LENGTH * sin(P_phi);
 
-        double P_x = r;
-        double P_z = z;
+        //convert to polar
+        double alpha = atan2(yw, xw);
+        double R = sqrt(xw*xw + yw*yw);
 
-        double d = sqrt(P_x*P_x + P_z*P_z);
+        double beta;
+        if (!cosrule(Constants::ELBOW_LENGTH, R, Constants::SHOULDER_LENGTH, beta)) {
+            std::cerr << "cos rule error!";
+            std::exit(1);
+        }
 
-        //TODO: check negative/positve conventions
-        double cosElbow = (Constants::SHOULDER_LENGTH * Constants::SHOULDER_LENGTH + Constants::ELBOW_LENGTH * Constants::ELBOW_LENGTH - d * d)
-            / (2.0 * Constants::SHOULDER_LENGTH * Constants::ELBOW_LENGTH);
-        cosElbow = std::max(-1.0, std::min(1.0, cosElbow));
-        double elbowAngleUp = acos(cosElbow);
-        double elbowAngleDown = -acos(cosElbow);
+        double gamma;
+        if (!cosrule(R, Constants::SHOULDER_LENGTH, Constants::ELBOW_LENGTH, gamma)) {
+            std::cerr << "cos rule error!";
+            std::exit(1);
+        }
 
+        double shoulderAngleDown = alpha - beta;
+        double shoulderAngleUp = alpha + beta;
 
+        double elbowAngleDown = M_PI - gamma;
+        double elbowAngleUp = gamma - M_PI;
 
-        double angleToTarget = atan2(P_z, P_x);
-        double cosShoulder = (Constants::SHOULDER_LENGTH*Constants::SHOULDER_LENGTH + d * d - Constants::ELBOW_LENGTH*Constants::ELBOW_LENGTH)
-                         / (2.0 * Constants::SHOULDER_LENGTH * d);
-        cosShoulder = std::max(-1.0, std::min(1.0, cosShoulder));
-        double shoulderInnerAngle = acos(cosShoulder);
+        double wristAngleDown = P_phi - shoulderAngleDown - elbowAngleDown;
+        double wristAngleUp = P_phi - shoulderAngleUp - elbowAngleUp;
 
-        double shoulderAngleUp = angleToTarget - shoulderInnerAngle;
-        double shoulderAngleDown = angleToTarget + shoulderInnerAngle;
-
-        double wristAngleUp = phi - shoulderAngleUp - elbowAngleUp;
-        double wristAngleDown = phi - shoulderAngleDown - elbowAngleDown;
 
         double shoulderAngle, elbowAngle, wristAngle;
 
@@ -96,7 +116,7 @@
         }
         else {
             std::cerr<< "No valid position found";
-            std::exit(1);
+            // std::exit(1);
         }
 
         double verify_x = cos(baseAngle) * (Constants::SHOULDER_LENGTH * cos(shoulderAngle) +
@@ -109,20 +129,42 @@
                          Constants::ELBOW_LENGTH * sin(shoulderAngle + elbowAngle) +
                          Constants::WRIST_LENGTH * sin(shoulderAngle + elbowAngle + wristAngle);
 
-        std::cout << "Forward kinematics check: (" << verify_x << ", " << verify_y << ", " << verify_z << ")" << std::endl;
-        std::cout << "Position error: " << sqrt(pow(x-verify_x,2) + pow(y-verify_y,2) + pow(z+Constants::BASE_HEIGHT-verify_z,2)) << std::endl;
 
-        std::cout << "=== IK Debug ===" << std::endl;
-        std::cout << "Target: (" << x << ", " << y << ", " << z << "), phi: " << phi * 180/M_PI << "°" << std::endl;
-        std::cout << "P_x: " << P_x << ", P_z: " << P_z << ", d: " << d << std::endl;
-        std::cout << "cosElbow: " << cosElbow << std::endl;
-        std::cout << "Raw acos(cosElbow): " << acos(cosElbow) * 180/M_PI << "°" << std::endl;
-        std::cout << "angleToTarget: " << angleToTarget * 180/M_PI << "°" << std::endl;
-        std::cout << "shoulderInnerAngle: " << shoulderInnerAngle * 180/M_PI << "°" << std::endl;
-        std::cout << "Final angles - Shoulder: " << shoulderAngle * 180/M_PI << "°, Elbow: " << elbowAngle * 180/M_PI << "°, Wrist: " << wristAngle * 180/M_PI << "°" << std::endl;
-        std::cout << "Final angles DOWN - Shoulder: " << shoulderAngleDown * 180/M_PI << "°, Elbow: " << elbowAngleDown * 180/M_PI << "°, Wrist: " << wristAngleDown * 180/M_PI << "°" << std::endl;
-        std::cout << "Final angles UP - Shoulder: " << shoulderAngleUp * 180/M_PI << "°, Elbow: " << elbowAngleUp * 180/M_PI << "°, Wrist: " << wristAngleUp * 180/M_PI << "°" << std::endl;
+        std::cout << "\n=== IK Debug ===" << std::endl;
 
+        std::cout << "Target: (" << x << ", " << y << ", " << z
+                  << "), phi: " << phi * 180.0 / M_PI << "°" << std::endl;
+
+        std::cout << "Base angle: " << baseAngle * 180.0 / M_PI << "°" << std::endl;
+        std::cout << "Total distance: " << totalDistance << std::endl;
+        std::cout << "Planar distance r: " << r << ", d: " << d << std::endl;
+
+        std::cout << "Wrist reference point -> P_x: " << P_x
+                  << ", P_y: " << P_y
+                  << ", P_phi: " << P_phi * 180.0 / M_PI << "°" << std::endl;
+        std::cout << "Wrist position (xw, yw): (" << xw << ", " << yw
+                  << "), Polar R: " << R
+                  << ", alpha: " << alpha * 180.0 / M_PI << "°" << std::endl;
+
+        std::cout << "Shoulder inner angle (beta): " << beta * 180.0 / M_PI << "°" << std::endl;
+        std::cout << "Elbow inner angle (gamma): " << gamma * 180.0 / M_PI << "°" << std::endl;
+
+        std::cout << "DOWN solution -> Shoulder: " << shoulderAngleDown * 180.0 / M_PI
+                  << "°, Elbow: " << elbowAngleDown * 180.0 / M_PI
+                  << "°, Wrist: " << wristAngleDown * 180.0 / M_PI << "°" << std::endl;
+
+        std::cout << "UP solution   -> Shoulder: " << shoulderAngleUp * 180.0 / M_PI
+                  << "°, Elbow: " << elbowAngleUp * 180.0 / M_PI
+                  << "°, Wrist: " << wristAngleUp * 180.0 / M_PI << "°" << std::endl;
+
+        std::cout << "Chosen solution -> Shoulder: " << shoulderAngle * 180.0 / M_PI
+                  << "°, Elbow: " << elbowAngle * 180.0 / M_PI
+                  << "°, Wrist: " << wristAngle * 180.0 / M_PI << "°" << std::endl;
+
+        std::cout << "FK check: (" << verify_x << ", " << verify_y << ", " << verify_z << ")" << std::endl;
+        std::cout << "Position error: "
+                  << sqrt(pow(x - verify_x, 2) + pow(y - verify_y, 2) + pow(z + Constants::BASE_HEIGHT - verify_z, 2))
+                  << std::endl;
 
         Arm result{
             baseAngle * Constants::RADIANS_TO_DEGREES,
