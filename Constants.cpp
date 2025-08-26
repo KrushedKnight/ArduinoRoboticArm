@@ -25,7 +25,7 @@ namespace Constants {
     const int BASE_OFFSET = 65;
     const int SHOULDER_OFFSET = 0;
     const int ELBOW_OFFSET = 0;
-    const int WRIST_OFFSET = 0;
+    const int WRIST_OFFSET = 90;
 
     //TODO: Check all of these
     const double SHOULDER_MIN = 0.001;
