@@ -42,9 +42,6 @@
         }
 
 
-
-        phi = phi * Constants::DEGREES_TO_RADIANS;
-
         double baseAngle = atan2(y,x);
         double r = sqrt(x*x + y*y);
 
@@ -116,7 +113,9 @@
         }
         else {
             std::cerr<< "No valid position found";
-            // std::exit(1);
+            shoulderAngle = shoulderAngleUp;
+            elbowAngle = elbowAngleUp;
+            wristAngle = wristAngleUp;
         }
 
         double verify_x = cos(baseAngle) * (Constants::SHOULDER_LENGTH * cos(shoulderAngle) +

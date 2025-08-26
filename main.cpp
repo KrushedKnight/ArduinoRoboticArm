@@ -10,6 +10,7 @@
 #include <sys/ioctl.h>
 
 #include "Arm.h"
+#include "Constants.h"
 #include "IKSolver.h"
 
 int openSerial(const std::string& device) {
@@ -61,12 +62,23 @@ void writeCommand(int serialPort, std::string &data) {
     std::cout << data << std::endl;
 }
 
+
+
+
+double b2a(double b){
+    return b * Constants::DEGREES_TO_RADIANS - M_PI_2;
+}
+
+double a2b(double a) {
+    return a + M_PI_2 * Constants::RADIANS_TO_DEGREES;
+}
+
 void moveServo(Servo &servo, int amount, int serialPort) {
     servo.position += amount;
     int inversion = servo.inverted ? -1 : 1;
     // std::string debug = "" + servo.code + std::to_string(servo.position);
     // std::cout<<debug;
-    std::string data = servo.code + std::to_string(servo.offset + servo.position * inversion) + "\n";
+    std::string data = servo.code + std::to_string(a2b(servo.position)) + "\n";
     writeCommand(serialPort, data);
 
 }
@@ -75,101 +87,94 @@ void applyArmPosition(Arm arm, int serialPort) {
     int inversion = 1;
     for (Servo* servo : arm.servos) {
         inversion = servo->inverted ? -1 : 1;
-        std::string data = servo-> code + std::to_string(servo->offset + servo-> position * inversion) + "\n";
+        std::string data = servo-> code + std::to_string(a2b(servo->position)) + "\n";
         // std::string dataOut = servo-> code + std::to_string(servo-> position * inversion) + "\n";
         // std::cout << dataOut << std::endl;
         writeCommand(serialPort, data);
     }
 }
-
-// int main() {
-//     if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) < 0) {
-//         std::cerr << "Error SDL_Init\n";
-//     }
-//
-//     SDL_Window* window = SDL_CreateWindow("Arduino Control",
-//                                       SDL_WINDOWPOS_CENTERED,
-//                                       SDL_WINDOWPOS_CENTERED,
-//                                       640, 480,
-//                                       SDL_WINDOW_SHOWN);
-//     if (!window) {
-//         std::cerr << "Error creating SDL window: " << SDL_GetError() << "\n";
-//         SDL_Quit();
-//         return 1;
-//     }
-//
-//
-//     int serialPort = openSerial("/dev/ttyACM0");
-//     sleep(2);
-//
-//
-//     std::string data;
-//     bool running = true;
-//     SDL_Event event;
-//     Arm arm = Arm();
-//     IKSolver ik_solver;
-//
-//
-//     while (running) {
-//         while (SDL_PollEvent(&event)) {
-//             if (event.type == SDL_QUIT) {
-//                 running = false;
-//             }
-//             else if (event.type == SDL_KEYDOWN) {
-//                 if (event.key.keysym.sym == SDLK_w) {
-//                     // moveServo(arm.shoulder, 3, serialPort);
-//                     Arm result = ik_solver.analyticalSolve(0.1,0.1,0.2, 50);
-//                     applyArmPosition(result, serialPort);
-//
-//                 }
-//                 if (event.key.keysym.sym == SDLK_s) {
-//                     moveServo(arm.shoulder, -3, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_d) {
-//                     moveServo(arm.base, 1, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_a) {
-//                     moveServo(arm.base, -1, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_t) {
-//                     moveServo(arm.elbow, 1, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_g) {
-//                     moveServo(arm.elbow, -1, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_UP) {
-//                     moveServo(arm.wrist_ver, 1, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_DOWN) {
-//                     moveServo(arm.wrist_ver, -1, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_RIGHT) {
-//                     moveServo(arm.wrist_rot, 1, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_LEFT) {
-//                     moveServo(arm.wrist_rot, -1, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_e) {
-//                     moveServo(arm.gripper, 1, serialPort);
-//                 }
-//                 if (event.key.keysym.sym == SDLK_q) {
-//                     moveServo(arm.gripper, -1, serialPort);
-//                 }
-//
-//                 else if (event.key.keysym.sym == SDLK_ESCAPE) {
-//                     running = false;
-//                 }
-//             }
-//         }
-//         SDL_Delay(100);
-//     }
-//
-//     return 0;
-// }
-
 int main() {
-    IKSolver ik_solver;
-    Arm result = ik_solver.analyticalSolve(0.05,0.12,0.12, -30);
-    sleep(5);
+    if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) < 0) {
+        std::cerr << "Error SDL_Init\n";
+    }
 
+    SDL_Window* window = SDL_CreateWindow("Arduino Control",
+                                      SDL_WINDOWPOS_CENTERED,
+                                      SDL_WINDOWPOS_CENTERED,
+                                      640, 480,
+                                      SDL_WINDOW_SHOWN);
+    if (!window) {
+        std::cerr << "Error creating SDL window: " << SDL_GetError() << "\n";
+        SDL_Quit();
+        return 1;
+    }
+
+
+    int serialPort = openSerial("/dev/ttyACM0");
+    sleep(2);
+
+
+    std::string data;
+    bool running = true;
+    SDL_Event event;
+    Arm arm = Arm();
+    IKSolver ik_solver;
+
+
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false;
+            }
+            else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_w) {
+                    // moveServo(arm.shoulder, 3, serialPort);
+                    Arm result = ik_solver.analyticalSolve(0.1,0.1,0.17, b2a(30.0));
+                    applyArmPosition(result, serialPort);
+
+                }
+                if (event.key.keysym.sym == SDLK_s) {
+                    moveServo(arm.shoulder, -3, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_d) {
+                    moveServo(arm.base, 1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_a) {
+                    moveServo(arm.base, -1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_t) {
+                    moveServo(arm.elbow, 1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_g) {
+                    moveServo(arm.elbow, -1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_UP) {
+                    moveServo(arm.wrist_ver, 1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_DOWN) {
+                    moveServo(arm.wrist_ver, -1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_RIGHT) {
+                    moveServo(arm.wrist_rot, 1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_LEFT) {
+                    moveServo(arm.wrist_rot, -1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_e) {
+                    moveServo(arm.gripper, 1, serialPort);
+                }
+                if (event.key.keysym.sym == SDLK_q) {
+                    moveServo(arm.gripper, -1, serialPort);
+                }
+
+                else if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    running = false;
+                }
+            }
+        }
+        SDL_Delay(100);
+    }
+
+    return 0;
 }
+
