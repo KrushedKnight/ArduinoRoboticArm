@@ -123,13 +123,13 @@ int main() {
                 if (event.key.keysym.sym == SDLK_w) {
                     // moveServo(arm.shoulder, 3, serialPort);
                     // moveServo(arm.shoulder, 3, serialPort);
-                    Arm result = ik_solver.analyticalSolve(0.1,0.1,0.21, braccioToCartesian(15.0));
+                    Arm result = ik_solver.analyticalSolve(0.1,0.12,0.20, braccioToCartesian(15.0));
                     applyArmPosition(result, serialPort);
                     sleep(7);
-                    result = ik_solver.analyticalSolve(0.1,0.1,0.17, braccioToCartesian(15.0));
+                    result = ik_solver.analyticalSolve(0.1,0.12,0.15, braccioToCartesian(25.0));
                     applyArmPosition(result, serialPort);
                     sleep(7);
-                    result = ik_solver.analyticalSolve(0.1,0.1,0.14, braccioToCartesian(15.0));
+                    result = ik_solver.analyticalSolve(0.1,0.12,0.14, braccioToCartesian(25.0));
                     applyArmPosition(result, serialPort);
 
 
