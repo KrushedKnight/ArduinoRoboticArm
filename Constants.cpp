@@ -37,6 +37,6 @@ namespace Constants {
     const double BASE_MIN = -60;
     const double BASE_MAX = 220;
 
-    const double scaling_factor = 0.000075;
+    const double scaling_factor = 0.0003;
 
 }

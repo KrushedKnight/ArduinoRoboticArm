@@ -139,9 +139,11 @@ int main() {
     {
         while (SDL_PollEvent(&event))
         {
-            if (event.type == SDL_QUIT)
+            if (event.type == SDL_KEYDOWN)
             {
-                running = false;
+                if (event.key.keysym.sym == SDLK_q) {
+                    running = false;
+                }
             }
 
             if (event.type == SDL_MOUSEBUTTONDOWN)
@@ -155,37 +157,47 @@ int main() {
             }
         }
 
-        // Clear screen
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White background
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
 
-        // Draw all points
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red points
-        for (const auto& p : pointsDrawn)
-        {
-            SDL_RenderDrawPoint(renderer, p.x, p.y);
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+        for (size_t i = 1; i < pointsDrawn.size(); i += 2) {
+            SDL_RenderDrawLine(renderer,
+                               pointsDrawn[i-1].x, pointsDrawn[i-1].y,
+                               pointsDrawn[i].x,   pointsDrawn[i].y);
         }
 
-        // Present the drawing
         SDL_RenderPresent(renderer);
     }
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-    Point3D startingPosition = {0, 0, 0}; //fix
+    Point3D startingPosition = {0.09, 0.1, 0.15}; //fix
     Point3D relativeCoordinates;
     Point3D currentPosition;
 
-    Arm currentArm = null;
-    for (Point2D p : pointsDrawn) {
-        relativeCoordinates = screenToCartesian(p);
+    Arm currentArm;
+    for (size_t i = 1; i < pointsDrawn.size(); i += 2) {
+        relativeCoordinates = screenToCartesian(pointsDrawn.at(i-1));
         currentPosition = {startingPosition.x + relativeCoordinates.x,
             startingPosition.y + relativeCoordinates.y,
             startingPosition.z + relativeCoordinates.z};
 
         currentArm = ik_solver.analyticalSolve(currentPosition.x, currentPosition.y, currentPosition.z, 0.0);
+        applyArmPosition(currentArm,serialPort);
         sleep(7.0);
+
+        relativeCoordinates = screenToCartesian(pointsDrawn.at(i));
+        currentPosition = {startingPosition.x + relativeCoordinates.x,
+            startingPosition.y + relativeCoordinates.y,
+            startingPosition.z + relativeCoordinates.z};
+
+        currentArm = ik_solver.analyticalSolve(currentPosition.x, currentPosition.y, currentPosition.z, 0.0);
+        applyArmPosition(currentArm,serialPort);
+        sleep(7.0);
+
 
     }
 
