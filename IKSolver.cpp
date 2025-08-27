@@ -61,26 +61,26 @@
         double yw = P_y - Constants::WRIST_LENGTH * sin(P_phi);
 
         //convert to polar
-        double alpha = atan2(yw, xw);
+        double shoulderInteriorAngle = atan2(yw, xw);
         double R = sqrt(xw*xw + yw*yw);
 
-        double beta;
-        if (!cosrule(Constants::ELBOW_LENGTH, R, Constants::SHOULDER_LENGTH, beta)) {
+        double elbowInteriorAngle;
+        if (!cosrule(Constants::ELBOW_LENGTH, R, Constants::SHOULDER_LENGTH, elbowInteriorAngle)) {
             std::cerr << "cos rule error!";
             std::exit(1);
         }
 
-        double gamma;
-        if (!cosrule(R, Constants::SHOULDER_LENGTH, Constants::ELBOW_LENGTH, gamma)) {
+        double wristInteriorAngle;
+        if (!cosrule(R, Constants::SHOULDER_LENGTH, Constants::ELBOW_LENGTH, wristInteriorAngle)) {
             std::cerr << "cos rule error!";
             std::exit(1);
         }
 
-        double shoulderAngleDown = alpha - beta;
-        double shoulderAngleUp = alpha + beta;
+        double shoulderAngleDown = shoulderInteriorAngle - elbowInteriorAngle;
+        double shoulderAngleUp = shoulderInteriorAngle + elbowInteriorAngle;
 
-        double elbowAngleDown = M_PI - gamma;
-        double elbowAngleUp = gamma - M_PI;
+        double elbowAngleDown = M_PI - wristInteriorAngle;
+        double elbowAngleUp = wristInteriorAngle - M_PI;
 
         double wristAngleDown = P_phi - shoulderAngleDown - elbowAngleDown;
         double wristAngleUp = P_phi - shoulderAngleUp - elbowAngleUp;
@@ -143,10 +143,10 @@
                   << ", P_phi: " << P_phi * 180.0 / M_PI << "°" << std::endl;
         std::cout << "Wrist position (xw, yw): (" << xw << ", " << yw
                   << "), Polar R: " << R
-                  << ", alpha: " << alpha * 180.0 / M_PI << "°" << std::endl;
+                  << ", alpha: " << shoulderInteriorAngle * 180.0 / M_PI << "°" << std::endl;
 
-        std::cout << "Shoulder inner angle (beta): " << beta * 180.0 / M_PI << "°" << std::endl;
-        std::cout << "Elbow inner angle (gamma): " << gamma * 180.0 / M_PI << "°" << std::endl;
+        std::cout << "Shoulder inner angle (beta): " << elbowInteriorAngle * 180.0 / M_PI << "°" << std::endl;
+        std::cout << "Elbow inner angle (gamma): " << wristInteriorAngle * 180.0 / M_PI << "°" << std::endl;
 
         std::cout << "DOWN solution -> Shoulder: " << shoulderAngleDown * 180.0 / M_PI
                   << "°, Elbow: " << elbowAngleDown * 180.0 / M_PI

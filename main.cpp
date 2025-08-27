@@ -65,31 +65,24 @@ void writeCommand(int serialPort, std::string &data) {
 
 
 
-double b2a(double b){
+double braccioToCartesian(double b){
     return b * Constants::DEGREES_TO_RADIANS - M_PI_2;
 }
 
-double a2b(double a) {
+double cartesianToBraccio(double a) {
     return a + M_PI_2 * Constants::RADIANS_TO_DEGREES;
 }
 
 void moveServo(Servo &servo, int amount, int serialPort) {
     servo.position += amount;
-    int inversion = servo.inverted ? -1 : 1;
-    // std::string debug = "" + servo.code + std::to_string(servo.position);
-    // std::cout<<debug;
-    std::string data = servo.code + std::to_string(a2b(servo.position)) + "\n";
+    std::string data = servo.code + std::to_string(servo.position) + "\n";
     writeCommand(serialPort, data);
 
 }
 
 void applyArmPosition(Arm arm, int serialPort) {
-    int inversion = 1;
     for (Servo* servo : arm.servos) {
-        inversion = servo->inverted ? -1 : 1;
-        std::string data = servo-> code + std::to_string(a2b(servo->position + servo->offset)) + "\n";
-        // std::string dataOut = servo-> code + std::to_string(servo-> position * inversion) + "\n";
-        // std::cout << dataOut << std::endl;
+        std::string data = servo-> code + std::to_string(cartesianToBraccio(servo->position + servo->offset)) + "\n";
         writeCommand(serialPort, data);
     }
 }
@@ -129,13 +122,14 @@ int main() {
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_w) {
                     // moveServo(arm.shoulder, 3, serialPort);
-                    Arm result = ik_solver.analyticalSolve(0.1,0.1,0.21, b2a(15.0));
+                    // moveServo(arm.shoulder, 3, serialPort);
+                    Arm result = ik_solver.analyticalSolve(0.1,0.1,0.21, braccioToCartesian(15.0));
                     applyArmPosition(result, serialPort);
                     sleep(7);
-                    result = ik_solver.analyticalSolve(0.1,0.1,0.17, b2a(15.0));
+                    result = ik_solver.analyticalSolve(0.1,0.1,0.17, braccioToCartesian(15.0));
                     applyArmPosition(result, serialPort);
                     sleep(7);
-                    result = ik_solver.analyticalSolve(0.1,0.1,0.14, b2a(15.0));
+                    result = ik_solver.analyticalSolve(0.1,0.1,0.14, braccioToCartesian(15.0));
                     applyArmPosition(result, serialPort);
 
 
