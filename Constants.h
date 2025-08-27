@@ -38,6 +38,7 @@ namespace Constants {
     extern const double WRIST_MAX;
     extern const double BASE_MAX;
     extern const double BASE_MIN;
+    extern const double scaling_factor;
 }
 
 

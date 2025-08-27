@@ -12,6 +12,7 @@
 #include "Arm.h"
 #include "Constants.h"
 #include "IKSolver.h"
+#include "Points.h";
 
 int openSerial(const std::string& device) {
     int fd = open(device.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
@@ -73,6 +74,15 @@ double cartesianToBraccio(double a) {
     return a + M_PI_2 * Constants::RADIANS_TO_DEGREES;
 }
 
+Point3D screenToCartesian(Point2D point) {
+
+    double x = (point.x - 320.0) * Constants::scaling_factor;
+    double y = 0;
+    double z = (240.0 - point.y) * Constants::scaling_factor;
+    Point3D armPosition = {x, y, z};
+    return armPosition;
+}
+
 void moveServo(Servo &servo, int amount, int serialPort) {
     servo.position += amount;
     std::string data = servo.code + std::to_string(servo.position) + "\n";
@@ -86,6 +96,7 @@ void applyArmPosition(Arm arm, int serialPort) {
         writeCommand(serialPort, data);
     }
 }
+
 int main() {
     if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) < 0) {
         std::cerr << "Error SDL_Init\n";
@@ -103,6 +114,15 @@ int main() {
     }
 
 
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (!renderer)
+    {
+        std::cerr << "Failed to create renderer: " << SDL_GetError() << "\n";
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
     int serialPort = openSerial("/dev/ttyACM0");
     sleep(2);
 
@@ -112,69 +132,64 @@ int main() {
     SDL_Event event;
     Arm arm = Arm();
     IKSolver ik_solver;
+    std::vector<Point2D> pointsDrawn;
 
 
-    while (running) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+    while (running)
+    {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
                 running = false;
             }
-            else if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.sym == SDLK_w) {
-                    // moveServo(arm.shoulder, 3, serialPort);
-                    // moveServo(arm.shoulder, 3, serialPort);
-                    Arm result = ik_solver.analyticalSolve(0.1,0.1,0.21, braccioToCartesian(15.0));
-                    applyArmPosition(result, serialPort);
-                    sleep(7);
-                    result = ik_solver.analyticalSolve(0.1,0.1,0.17, braccioToCartesian(15.0));
-                    applyArmPosition(result, serialPort);
-                    sleep(7);
-                    result = ik_solver.analyticalSolve(0.1,0.1,0.14, braccioToCartesian(15.0));
-                    applyArmPosition(result, serialPort);
 
-
-                }
-                if (event.key.keysym.sym == SDLK_s) {
-                    moveServo(arm.shoulder, -3, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_d) {
-                    moveServo(arm.base, 1, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_a) {
-                    moveServo(arm.base, -1, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_t) {
-                    moveServo(arm.elbow, 1, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_g) {
-                    moveServo(arm.elbow, -1, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_UP) {
-                    moveServo(arm.wrist_ver, 1, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_DOWN) {
-                    moveServo(arm.wrist_ver, -1, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_RIGHT) {
-                    moveServo(arm.wrist_rot, 1, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_LEFT) {
-                    moveServo(arm.wrist_rot, -1, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_e) {
-                    moveServo(arm.gripper, 1, serialPort);
-                }
-                if (event.key.keysym.sym == SDLK_q) {
-                    moveServo(arm.gripper, -1, serialPort);
-                }
-
-                else if (event.key.keysym.sym == SDLK_ESCAPE) {
-                    running = false;
+            if (event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                if (event.button.button == SDL_BUTTON_LEFT)
+                {
+                    Point2D pointDrawn = {static_cast<double>(event.button.x), static_cast<double>(event.button.y)};
+                    pointsDrawn.push_back(pointDrawn);
+                    std::cout << "Clicked at: (" << pointDrawn.x << ", " << pointDrawn.y << ")\n";
                 }
             }
         }
-        SDL_Delay(100);
+
+        // Clear screen
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White background
+        SDL_RenderClear(renderer);
+
+        // Draw all points
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red points
+        for (const auto& p : pointsDrawn)
+        {
+            SDL_RenderDrawPoint(renderer, p.x, p.y);
+        }
+
+        // Present the drawing
+        SDL_RenderPresent(renderer);
     }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    Point3D startingPosition = {0, 0, 0}; //fix
+    Point3D relativeCoordinates;
+    Point3D currentPosition;
+
+    Arm currentArm = null;
+    for (Point2D p : pointsDrawn) {
+        relativeCoordinates = screenToCartesian(p);
+        currentPosition = {startingPosition.x + relativeCoordinates.x,
+            startingPosition.y + relativeCoordinates.y,
+            startingPosition.z + relativeCoordinates.z};
+
+        currentArm = ik_solver.analyticalSolve(currentPosition.x, currentPosition.y, currentPosition.z, 0.0);
+        sleep(7.0);
+
+    }
+
+
 
     return 0;
 }

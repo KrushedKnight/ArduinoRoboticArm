@@ -15,7 +15,9 @@ add_executable(ArduinoRoboticArm main.cpp
         IKSolver.cpp
         IKSolver.h
         Constants.cpp
-        Constants.h)
+        Constants.h
+        Points.h
+        Constants.cpp)
 
 
 target_link_libraries(ArduinoRoboticArm ${SDL2_LIBRARIES})
