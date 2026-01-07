@@ -71,31 +71,84 @@ target = [0.1, 0.1, 0.2]  # (x, y, z) in meters
 angles = arm_chain.inverse_kinematics(target)
 
 base = 90 + degrees(angles[1])
-shoulder = 90 - degrees(angles[2])
-elbow = 90 + degrees(angles[3])
-wrist_v = 90 - degrees(angles[4])
-wrist_r = 90 + degrees(angles[5])
-gripper = 10
-
-adjustedAngles = [base, shoulder, elbow, wrist_v, wrist_r, gripper]
-
-for x in adjustedAngles:
-    print(x)
+import socket
+import time
+import math
 
 # --- Configuration ---
 UDP_IP = "127.0.0.1"
 UDP_PORT = 8080
-ROBOT_X_MIN, ROBOT_X_MAX = -0.15, 0.15
-ROBOT_Y_MIN, ROBOT_Y_MAX = 0.15, 0.35
-ROBOT_Z_MIN, ROBOT_Z_MAX = 0.05, 0.30
 
-# Initialize UDP Socket
+# Robot Workspace Limits
+ROBOT_X_MIN, ROBOT_X_MAX = -0.15, 0.15
+ROBOT_Y_MIN, ROBOT_Y_MAX = 0.15, 0.40  # Reach (Forward/Back)
+ROBOT_Z_MIN, ROBOT_Z_MAX = 0.05, 0.35  # Height
+
+# Control Sensitivity
+SENSITIVITY_X = 0.7
+SENSITIVITY_Y = 0.7
+SENSITIVITY_Z = 0.7
+
+class RobotState:
+    def __init__(self):
+        # Start at a safe home position
+        self.x = 0.0
+        self.y = 0.25
+        self.z = 0.20
+        self.phi = 0.0  # Wrist pitch (radians)
+
+    def update(self, dx, dy, dz):
+        self.x = np.clip(self.x + dx, ROBOT_X_MIN, ROBOT_X_MAX)
+        self.y = np.clip(self.y + dy, ROBOT_Y_MIN, ROBOT_Y_MAX)
+        self.z = np.clip(self.z + dz, ROBOT_Z_MIN, ROBOT_Z_MAX)
+
+    def set_pitch(self, angle_rad):
+        # Clip pitch to reasonable values (-90 to 90 degrees)
+        self.phi = np.clip(angle_rad, -1.57, 1.57)
+
+    def __str__(self):
+        return f"{self.x:.3f},{self.y:.3f},{self.z:.3f},{self.phi:.3f}"
+
+# --- Helper Functions ---
+def calculate_distance(p1, p2):
+    return math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2 + (p1.z - p2.z)**2)
+
+def is_fist(landmarks):
+    # Simple heuristic: Check if fingertips are below finger IP joints (folded)
+    # 0 = Wrist
+    # Tips: 8, 12, 16, 20
+    # PIPs: 6, 10, 14, 18
+    # Pseudo-fist: Tips are close to Palm (0) or below PIPs
+    
+    # Check Index, Middle, Ring, Pinky
+    fingers_folded = 0
+    for tip_idx, pip_idx in [(8, 6), (12, 10), (16, 14), (20, 18)]:
+        # Note: Y increases downwards in screen coordinates
+        if landmarks[tip_idx].y > landmarks[pip_idx].y: 
+            fingers_folded += 1
+            
+    return fingers_folded >= 3 # If 3 or more fingers are folded
+
+def get_wrist_pitch(landmarks):
+    # Vector from Wrist(0) to Middle MPC(9)
+    # We want the angle relative to "flat"
+    wrist = landmarks[0]
+    middle_base = landmarks[9]
+    
+    delta_y = wrist.y - middle_base.y # Up is negative Y in screen
+    delta_z = middle_base.z - wrist.z # Forward is negative Z usually
+    
+    # Start simple: Map Y-difference to pitch
+    # Hand pointing UP (wrist below fingers) -> Positive Pitch
+    # Hand pointing DOWN (wrist above fingers) -> Negative Pitch
+    
+    angle = math.atan2(delta_y, 0.1) # Approx normalized run
+    # Amplify for better control
+    return angle * 2.0
+
+# --- Setup ---
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-def map_value(value, in_min, in_max, out_min, out_max):
-    return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-
-# --- MediaPipe Setup ---
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 hands = mp_hands.Hands(
@@ -105,67 +158,86 @@ hands = mp_hands.Hands(
     min_tracking_confidence=0.7
 )
 
-# --- Camera Setup ---
 cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
 
-print(f"Starting Vision System... NOTE: press 'q' to quit.")
+robot = RobotState()
+last_hand_pos = None # (x, y, z)
+
+print("--- Gesture Control Active ---")
+print(" [OPEN HAND] : Move Robot")
+print(" [FIST]      : Clutch (Reposition Hand)")
+print(" [TILT]      : Control Wrist Pitch")
 
 while True:
     ret, frame = cap.read()
-    if not ret:
-        print("Failed to grab frame")
-        break
+    if not ret: break
 
-    # Flip frame horizontally for selfie-view
-    frame = cv2.flip(frame, 1)
+    frame = cv2.flip(frame, 1) # Mirror view
     h, w, c = frame.shape
-    
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    results = hands.process(frame_rgb)
+    results = hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
+    status_text = "Searching..."
+    color = (0, 0, 255)
 
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
-            mp_drawing.draw_landmarks(
-                frame,
-                hand_landmarks,
-                mp_hands.HAND_CONNECTIONS
-            )
-
-            # Use Index Finger Tip (Landmark 8) for tracking
-            # Normalize coordinates [0,1]
-            idx_x = hand_landmarks.landmark[8].x
-            idx_y = hand_landmarks.landmark[8].y
-            idx_z = hand_landmarks.landmark[8].z # Relative depth
-
-            # --- Coordinate Mapping ---
-            # Screen X (0..1) -> Robot X (Left..Right)
-            # Screen Y (0..1) -> Robot Z (Up..Down) (Inverted because screen Y is down)
-            # Robot Y (Reach) -> Fixed or maybe mapped to Screen Y?
+            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
             
-            # Let's map:
-            # Screen X -> Robot Base Rotation (X coordinate)
-            # Screen Y -> Robot Height (Z coordinate)
-            # Reach (Robot Y) -> Fixed for now, or ensure it's in range.
+            # 1. Coordinate Extraction (Normalized 0..1)
+            # Use Wrist (0) or Index MCP (5) as stable anchor for movement
+            anchor = hand_landmarks.landmark[9] # Middle finger MCP is very stable center
             
-            target_x = map_value(idx_x, 0, 1, ROBOT_X_MIN, ROBOT_X_MAX)
-            target_z = map_value(idx_y, 0, 1, ROBOT_Z_MAX, ROBOT_Z_MIN) # Inverted Y
-            target_y = 0.20 # Fixed reach for now to keep it simple safe plane
+            curr_x = anchor.x
+            curr_y = anchor.y
+            curr_z = anchor.z # Relative depth
+            
+            # 2. Gesture Recognition
+            clutched = is_fist(hand_landmarks.landmark)
+            
+            # 3. Control Logic
+            if last_hand_pos is None:
+                last_hand_pos = (curr_x, curr_y, curr_z)
+            
+            if clutched:
+                status_text = "CLUTCH (Paused)"
+                color = (0, 255, 255) # Yellow
+                # Update last pos so we don't jump when we unclutch
+                last_hand_pos = (curr_x, curr_y, curr_z)
+            else:
+                status_text = "ACTIVE"
+                color = (0, 255, 0) # Green
+                
+                # Calculate Deltas
+                dx = (curr_x - last_hand_pos[0]) * SENSITIVITY_X
+                dy = (curr_y - last_hand_pos[1]) * SENSITIVITY_Z # Screen Y -> Robot Z (Height)
+                dz = (last_hand_pos[2] - curr_z) * SENSITIVITY_Y # Depth -> Robot Y (Reach). Note sign flip?
+                
+                # Invert Screen Y because Screen Y is Down, Robot Z is Up
+                dy = -dy 
+                
+                # Update Robot
+                robot.update(dx, dz, dy) # Mapping: ScreenX->RobX, ScreenDepth->RobY, ScreenY->RobZ
+                
+                # Pitch Control
+                pitch = get_wrist_pitch(hand_landmarks.landmark)
+                robot.set_pitch(pitch)
+                
+                last_hand_pos = (curr_x, curr_y, curr_z)
 
-            # Format: "x,y,z,phi"
-            message = f"{target_x:.3f},{target_y:.3f},{target_z:.3f},0.0"
-            
+            # 4. Transmit
+            msg = str(robot)
             try:
-                sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
-                # Visualize on screen
-                cv2.putText(frame, f"Target: {message}", (10, 30), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-            except Exception as e:
-                print(f"UDP Error: {e}")
+                sock.sendto(msg.encode(), (UDP_IP, UDP_PORT))
+            except: pass
+            
+            # UI
+            cv2.putText(frame, f"Robot: {msg}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
-    cv2.imshow("Robot Vision Control", frame)
+    cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+    cv2.imshow("Virtual Mouse Robot Control", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

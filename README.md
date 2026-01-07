@@ -12,10 +12,13 @@ A portfolio project demonstrating real-time computer vision control of an Arduin
 
 ## Features
 
--   **Analytical IK Solver**: Fast, exact geometric solution for the Braccio 6-DOF arm (vs. iterative descent).
+-   **Analytical IK Solver**: Fast, exact geometric solution for the Braccio 6-DOF arm.
+-   **Advanced Gesture Control**:
+    -   **Virtual Mouse**: Move your hand to move the robot (Relative Positioning).
+    -   **Clutch Mechanism**: Make a **FIST** to pause tracking and reposition your hand (like lifting a mouse).
+    -   **Pitch Mimicry**: The robot wrist tilts up/down to match your hand's orientation.
 -   **Real-time Vision**: Low-latency UDP communication between Vision and Control layers.
 -   **Safety Limits**: Enforced joint constraints and workspace boundaries.
--   **Modular Design**: Decoupled Math (`IKSolver`), Hardware (`Arm`), and Vision logic.
 
 ## Getting Started
 
@@ -54,7 +57,11 @@ A portfolio project demonstrating real-time computer vision control of an Arduin
     ```bash
     python3 test.py
     ```
-    *A window will open showing the camera feed. Move your hand to control the robot!*
+
+3.  **Controls**:
+    -   **Open Hand**: Move the robot.
+    -   **Fist**: **Clutch (Pause)**. Use this to reposition your hand.
+    -   **Tilt Hand**: Control Wrist Pitch.
 
 ## Technical Details
 
