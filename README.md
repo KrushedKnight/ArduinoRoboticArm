@@ -57,7 +57,7 @@ A portfolio project demonstrating real-time computer vision control of an Arduin
 
 2.  **Start Vision Tracking**:
     ```bash
-    python3 test.py
+    python3 scripts/vision_controller.py
     ```
 
 3.  **Controls**:

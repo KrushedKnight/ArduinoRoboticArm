@@ -60,7 +60,7 @@ EQUALS = =
 CMAKE_SOURCE_DIR = /Users/krushedknight/Documents/Programming/ArduinoRoboticArm
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/krushedknight/Documents/Programming/ArduinoRoboticArm
+CMAKE_BINARY_DIR = /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,16 +87,16 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/CMakeFiles /Users/krushedknight/Documents/Programming/ArduinoRoboticArm//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/build/CMakeFiles /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/build/CMakeFiles 0
 .PHONY : all
 
 # The main codegen target
 codegen: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/CMakeFiles /Users/krushedknight/Documents/Programming/ArduinoRoboticArm//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/build/CMakeFiles /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 codegen
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/krushedknight/Documents/Programming/ArduinoRoboticArm/build/CMakeFiles 0
 .PHONY : codegen
 
 # The main clean target
@@ -136,101 +136,101 @@ ArduinoRoboticArm/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/build
 .PHONY : ArduinoRoboticArm/fast
 
-Arm.o: Arm.cpp.o
-.PHONY : Arm.o
+src/Arm.o: src/Arm.cpp.o
+.PHONY : src/Arm.o
 
 # target to build an object file
-Arm.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/Arm.cpp.o
-.PHONY : Arm.cpp.o
+src/Arm.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/Arm.cpp.o
+.PHONY : src/Arm.cpp.o
 
-Arm.i: Arm.cpp.i
-.PHONY : Arm.i
+src/Arm.i: src/Arm.cpp.i
+.PHONY : src/Arm.i
 
 # target to preprocess a source file
-Arm.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/Arm.cpp.i
-.PHONY : Arm.cpp.i
+src/Arm.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/Arm.cpp.i
+.PHONY : src/Arm.cpp.i
 
-Arm.s: Arm.cpp.s
-.PHONY : Arm.s
+src/Arm.s: src/Arm.cpp.s
+.PHONY : src/Arm.s
 
 # target to generate assembly for a file
-Arm.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/Arm.cpp.s
-.PHONY : Arm.cpp.s
+src/Arm.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/Arm.cpp.s
+.PHONY : src/Arm.cpp.s
 
-Constants.o: Constants.cpp.o
-.PHONY : Constants.o
+src/Constants.o: src/Constants.cpp.o
+.PHONY : src/Constants.o
 
 # target to build an object file
-Constants.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/Constants.cpp.o
-.PHONY : Constants.cpp.o
+src/Constants.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/Constants.cpp.o
+.PHONY : src/Constants.cpp.o
 
-Constants.i: Constants.cpp.i
-.PHONY : Constants.i
+src/Constants.i: src/Constants.cpp.i
+.PHONY : src/Constants.i
 
 # target to preprocess a source file
-Constants.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/Constants.cpp.i
-.PHONY : Constants.cpp.i
+src/Constants.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/Constants.cpp.i
+.PHONY : src/Constants.cpp.i
 
-Constants.s: Constants.cpp.s
-.PHONY : Constants.s
+src/Constants.s: src/Constants.cpp.s
+.PHONY : src/Constants.s
 
 # target to generate assembly for a file
-Constants.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/Constants.cpp.s
-.PHONY : Constants.cpp.s
+src/Constants.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/Constants.cpp.s
+.PHONY : src/Constants.cpp.s
 
-IKSolver.o: IKSolver.cpp.o
-.PHONY : IKSolver.o
+src/IKSolver.o: src/IKSolver.cpp.o
+.PHONY : src/IKSolver.o
 
 # target to build an object file
-IKSolver.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/IKSolver.cpp.o
-.PHONY : IKSolver.cpp.o
+src/IKSolver.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/IKSolver.cpp.o
+.PHONY : src/IKSolver.cpp.o
 
-IKSolver.i: IKSolver.cpp.i
-.PHONY : IKSolver.i
+src/IKSolver.i: src/IKSolver.cpp.i
+.PHONY : src/IKSolver.i
 
 # target to preprocess a source file
-IKSolver.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/IKSolver.cpp.i
-.PHONY : IKSolver.cpp.i
+src/IKSolver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/IKSolver.cpp.i
+.PHONY : src/IKSolver.cpp.i
 
-IKSolver.s: IKSolver.cpp.s
-.PHONY : IKSolver.s
+src/IKSolver.s: src/IKSolver.cpp.s
+.PHONY : src/IKSolver.s
 
 # target to generate assembly for a file
-IKSolver.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/IKSolver.cpp.s
-.PHONY : IKSolver.cpp.s
+src/IKSolver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/IKSolver.cpp.s
+.PHONY : src/IKSolver.cpp.s
 
-main.o: main.cpp.o
-.PHONY : main.o
+src/main.o: src/main.cpp.o
+.PHONY : src/main.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/main.cpp.o
-.PHONY : main.cpp.o
+src/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/main.cpp.o
+.PHONY : src/main.cpp.o
 
-main.i: main.cpp.i
-.PHONY : main.i
+src/main.i: src/main.cpp.i
+.PHONY : src/main.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/main.cpp.i
-.PHONY : main.cpp.i
+src/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+src/main.s: src/main.cpp.s
+.PHONY : src/main.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/main.cpp.s
-.PHONY : main.cpp.s
+src/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArduinoRoboticArm.dir/build.make CMakeFiles/ArduinoRoboticArm.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
 
 # Help Target
 help:
@@ -242,18 +242,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... ArduinoRoboticArm"
-	@echo "... Arm.o"
-	@echo "... Arm.i"
-	@echo "... Arm.s"
-	@echo "... Constants.o"
-	@echo "... Constants.i"
-	@echo "... Constants.s"
-	@echo "... IKSolver.o"
-	@echo "... IKSolver.i"
-	@echo "... IKSolver.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... src/Arm.o"
+	@echo "... src/Arm.i"
+	@echo "... src/Arm.s"
+	@echo "... src/Constants.o"
+	@echo "... src/Constants.i"
+	@echo "... src/Constants.s"
+	@echo "... src/IKSolver.o"
+	@echo "... src/IKSolver.i"
+	@echo "... src/IKSolver.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
 .PHONY : help
 
 

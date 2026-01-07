@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/ArduinoRoboticArm.dir/src/main.cpp.o CMakeFiles/ArduinoRoboticArm.dir/src/Arm.cpp.o CMakeFiles/ArduinoRoboticArm.dir/src/IKSolver.cpp.o CMakeFiles/ArduinoRoboticArm.dir/src/Constants.cpp.o -o ArduinoRoboticArm  -lSDL2
