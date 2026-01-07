@@ -82,41 +82,93 @@ adjustedAngles = [base, shoulder, elbow, wrist_v, wrist_r, gripper]
 for x in adjustedAngles:
     print(x)
 
-# # mediapipe hands stuff
-# mp_hands = mp.solutions.hands
-# mp_drawing = mp.solutions.drawing_utils
-# hands = mp_hands.Hands(
-#     static_image_mode=False,
-#     max_num_hands=1,
-#     min_detection_confidence=0.5,
-#     min_tracking_confidence=0.5
-# )
+# --- Configuration ---
+UDP_IP = "127.0.0.1"
+UDP_PORT = 8080
+ROBOT_X_MIN, ROBOT_X_MAX = -0.15, 0.15
+ROBOT_Y_MIN, ROBOT_Y_MAX = 0.15, 0.35
+ROBOT_Z_MIN, ROBOT_Z_MAX = 0.05, 0.30
 
-# # open cv stuff
-# cap = cv2.VideoCapture(0)  
+# Initialize UDP Socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-# while True:
-#     ret, frame = cap.read()
-#     if not ret:
-#         print("Failed to grab frame")
-#         break
+def map_value(value, in_min, in_max, out_min, out_max):
+    return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
+# --- MediaPipe Setup ---
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+hands = mp_hands.Hands(
+    static_image_mode=False,
+    max_num_hands=1,
+    min_detection_confidence=0.7,
+    min_tracking_confidence=0.7
+)
 
-#     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-#     results = hands.process(frame_rgb)
+# --- Camera Setup ---
+cap = cv2.VideoCapture(0)
+if not cap.isOpened():
+    print("Cannot open camera")
+    exit()
 
-#     if results.multi_hand_landmarks:
-#         for hand_landmarks in results.multi_hand_landmarks:
-#             mp_drawing.draw_landmarks(
-#                 frame,
-#                 hand_landmarks,
-#                 mp_hands.HAND_CONNECTIONS
-#             )
+print(f"Starting Vision System... NOTE: press 'q' to quit.")
 
-#     cv2.imshow("Kinect Hand Tracking", frame)
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        print("Failed to grab frame")
+        break
 
-#     if cv2.waitKey(1) & 0xFF == ord('q'):
-#         break
+    # Flip frame horizontally for selfie-view
+    frame = cv2.flip(frame, 1)
+    h, w, c = frame.shape
+    
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = hands.process(frame_rgb)
 
-# cap.release()
-# cv2.destroyAllWindows()
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+            mp_drawing.draw_landmarks(
+                frame,
+                hand_landmarks,
+                mp_hands.HAND_CONNECTIONS
+            )
+
+            # Use Index Finger Tip (Landmark 8) for tracking
+            # Normalize coordinates [0,1]
+            idx_x = hand_landmarks.landmark[8].x
+            idx_y = hand_landmarks.landmark[8].y
+            idx_z = hand_landmarks.landmark[8].z # Relative depth
+
+            # --- Coordinate Mapping ---
+            # Screen X (0..1) -> Robot X (Left..Right)
+            # Screen Y (0..1) -> Robot Z (Up..Down) (Inverted because screen Y is down)
+            # Robot Y (Reach) -> Fixed or maybe mapped to Screen Y?
+            
+            # Let's map:
+            # Screen X -> Robot Base Rotation (X coordinate)
+            # Screen Y -> Robot Height (Z coordinate)
+            # Reach (Robot Y) -> Fixed for now, or ensure it's in range.
+            
+            target_x = map_value(idx_x, 0, 1, ROBOT_X_MIN, ROBOT_X_MAX)
+            target_z = map_value(idx_y, 0, 1, ROBOT_Z_MAX, ROBOT_Z_MIN) # Inverted Y
+            target_y = 0.20 # Fixed reach for now to keep it simple safe plane
+
+            # Format: "x,y,z,phi"
+            message = f"{target_x:.3f},{target_y:.3f},{target_z:.3f},0.0"
+            
+            try:
+                sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
+                # Visualize on screen
+                cv2.putText(frame, f"Target: {message}", (10, 30), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            except Exception as e:
+                print(f"UDP Error: {e}")
+
+    cv2.imshow("Robot Vision Control", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
