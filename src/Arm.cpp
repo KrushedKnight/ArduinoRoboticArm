@@ -2,19 +2,19 @@
 // Created by beast-machine-2 on 8/1/25.
 //
 
-#include "Arm.h"
+#include "../include/Arm.h"
 
-#include "Constants.h"
+#include "../include/Constants.h"
 
 Arm::Arm() {
-  base = {'b', false, 0, Constants::BASE_OFFSET, 0, 270};
-  shoulder = {'s', false, 45, Constants::SHOULDER_OFFSET, 15, 165};
-  elbow = {'e', false, 0, Constants::ELBOW_OFFSET, 0, 180};
-  wrist_ver = {'v', true, 0, Constants::WRIST_OFFSET, 0, 180};
-  wrist_rot = {
+  base = Servo{'b', false, 0, Constants::BASE_OFFSET, 0, 270};
+  shoulder = Servo{'s', false, 45, Constants::SHOULDER_OFFSET, 15, 165};
+  elbow = Servo{'e', false, 0, Constants::ELBOW_OFFSET, 0, 180};
+  wrist_ver = Servo{'v', true, 0, Constants::WRIST_OFFSET, 0, 180};
+  wrist_rot = Servo{
       'r', false, 90, 0, 0, 180,
   };
-  gripper = {'g', false, 10, 0, 10, 73};
+  gripper = Servo{'g', false, 10, 0, 10, 73};
 
   servos.push_back(&base);
   servos.push_back(&shoulder);
@@ -35,14 +35,15 @@ void Arm::apply(JointAngles angles) {
 
 Arm::Arm(int basePos, int shoulderPos, int elbowPos, int wrist_verPos,
          int wrist_rotPos, int gripperPos) {
-  base = {'b', false, basePos, Constants::BASE_OFFSET, 0, 270};
-  shoulder = {'s', false, shoulderPos, Constants::SHOULDER_OFFSET, 15, 165};
-  elbow = {'e', false, elbowPos, Constants::ELBOW_OFFSET, 0, 180};
-  wrist_ver = {'v', true, wrist_verPos, Constants::WRIST_OFFSET, 0, 180};
-  wrist_rot = {
+  base = Servo{'b', false, basePos, Constants::BASE_OFFSET, 0, 270};
+  shoulder =
+      Servo{'s', false, shoulderPos, Constants::SHOULDER_OFFSET, 15, 165};
+  elbow = Servo{'e', false, elbowPos, Constants::ELBOW_OFFSET, 0, 180};
+  wrist_ver = Servo{'v', true, wrist_verPos, Constants::WRIST_OFFSET, 0, 180};
+  wrist_rot = Servo{
       'r', false, wrist_rotPos, 0, 0, 180,
   };
-  gripper = {'g', false, gripperPos, 0, 10, 73};
+  gripper = Servo{'g', false, gripperPos, 0, 10, 73};
 
   servos.push_back(&base);
   servos.push_back(&shoulder);

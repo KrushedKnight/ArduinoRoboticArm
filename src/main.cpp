@@ -12,9 +12,9 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "Arm.h"
-#include "Constants.h"
-#include "IKSolver.h"
+#include "../include/Arm.h"
+#include "../include/Constants.h"
+#include "../include/IKSolver.h"
 
 int openSerial(const std::string &device) {
   int fd = open(device.c_str(), O_RDWR | O_NOCTTY | O_SYNC);

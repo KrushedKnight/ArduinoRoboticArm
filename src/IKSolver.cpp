@@ -2,14 +2,13 @@
 // Created by beast-machine-2 on 8/2/25.
 //
 
-#include "IKSolver.h"
+#include "../include/IKSolver.h"
 
-#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <ostream>
 
-#include "Constants.h"
+#include "../include/Constants.h"
 
 // TODO: write transforms from our plane to actual servo angles
 
