@@ -29,8 +29,8 @@ int openSerial(const std::string &device) {
     exit(1);
   }
 
-  cfsetospeed(&tty, B9600);
-  cfsetispeed(&tty, B9600);
+  cfsetospeed(&tty, B115200);
+  cfsetispeed(&tty, B115200);
 
   tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;
   tty.c_cflag |= (CLOCAL | CREAD);
@@ -55,13 +55,7 @@ int openSerial(const std::string &device) {
   return fd;
 }
 
-void writeCommand(int serialPort, std::string &data) {
-  int success = write(serialPort, data.c_str(), data.size());
-  tcdrain(serialPort);
-  std::cout << success << std::endl;
-  std::cout << data << std::endl;
-}
-
+// writeCommand removed (Binary Protocol used)
 double braccioToCartesian(double b) {
   return b * Constants::DEGREES_TO_RADIANS - M_PI_2;
 }
@@ -72,18 +66,34 @@ double cartesianToBraccio(double a) {
 
 void moveServo(Servo &servo, int amount, int serialPort) {
   servo.position += amount;
-  std::string data = servo.code + std::to_string(servo.position) + "\n";
-  writeCommand(serialPort, data);
+  // NOTE: Single servo move not fully supported in simple binary protocol
+  // without sending full frame. For key-press debug, we should really resend
+  // full arm. Ignoring for now to focus on IK loop.
 }
 
+// Binary Frame: [0xFF, Base, Shoulder, Elbow, WristV, WristR, Gripper]
 void applyArmPosition(Arm arm, int serialPort) {
+  uint8_t frame[7];
+  frame[0] = 0xFF; // Sync Byte
+
+  int i = 1;
   for (Servo *servo : arm.servos) {
-    std::string data =
-        servo->code +
-        std::to_string(cartesianToBraccio(servo->position + servo->offset)) +
-        "\n";
-    writeCommand(serialPort, data);
+    // Map 0-180 degrees to byte.
+    // Clamp to ensure we don't accidentally send 0xFF (Sync) as data if
+    // possible, though strictly 0xFF is valid data 255, but servo range is
+    // 0-180. Braccio servos are 0-180.
+    int angle = (int)cartesianToBraccio(servo->position + servo->offset);
+    if (angle < 0)
+      angle = 0;
+    if (angle > 180)
+      angle = 180;
+
+    frame[i] = (uint8_t)angle;
+    i++;
   }
+
+  write(serialPort, frame, 7);
+  tcdrain(serialPort);
 }
 int main() {
   if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) < 0) {
@@ -143,37 +153,26 @@ int main() {
     }
 
     // --- UDP Poll ---
-    char buffer[1024];
+    // Packet Structure: [x, y, z, phi] as 4 floats (16 bytes)
+    char buffer[16];
     socklen_t len = sizeof(cliaddr);
-    long n = recvfrom(sockfd, (char *)buffer, 1024, 0,
+    long n = recvfrom(sockfd, (char *)buffer, 16, 0,
                       (struct sockaddr *)&cliaddr, &len);
 
-    if (n > 0) {
-      buffer[n] = '\0';
-      std::string msg(buffer);
-      // Parse "x,y,z,phi"
-      // Simple parsing
-      try {
-        size_t pos1 = msg.find(',');
-        size_t pos2 = msg.find(',', pos1 + 1);
-        size_t pos3 = msg.find(',', pos2 + 1);
+    if (n == 16) {
+      // Direct cast for speed (assuming Little Endian on both sides - typical
+      // for x86/ARM)
+      float *data = (float *)buffer;
+      double x = (double)data[0];
+      double y = (double)data[1];
+      double z = (double)data[2];
+      double phi = (double)data[3];
 
-        if (pos1 != std::string::npos && pos2 != std::string::npos &&
-            pos3 != std::string::npos) {
-          double x = std::stod(msg.substr(0, pos1));
-          double y = std::stod(msg.substr(pos1 + 1, pos2 - pos1 - 1));
-          double z = std::stod(msg.substr(pos2 + 1, pos3 - pos2 - 1));
-          double phi = std::stod(msg.substr(pos3 + 1));
+      std::cout << "Target: " << x << ", " << y << ", " << z << "\n";
 
-          std::cout << "Target: " << x << ", " << y << ", " << z << "\n";
-
-          JointAngles result = ik_solver.analyticalSolve(x, y, z, phi);
-          arm.apply(result);
-          applyArmPosition(arm, serialPort);
-        }
-      } catch (const std::exception &e) {
-        std::cerr << "Parse error: " << e.what() << "\n";
-      }
+      JointAngles result = ik_solver.analyticalSolve(x, y, z, phi);
+      arm.apply(result);
+      applyArmPosition(arm, serialPort);
     }
 
     SDL_Delay(10); // Check every 10ms

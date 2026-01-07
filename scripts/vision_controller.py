@@ -5,6 +5,7 @@ import numpy as np
 import socket
 import time
 import math
+import struct
 
 
 # --- Configuration ---
@@ -159,14 +160,24 @@ while True:
                 
                 last_hand_pos = (curr_x, curr_y, curr_z)
 
+import struct
+
+# ... (Previous imports)
+
+# ... (Inside loop)
+
             # 4. Transmit
-            msg = str(robot)
+            # UDP Packet Structure: [float x, float y, float z, float phi] -> 16 bytes
+            # Little Endian (<)
+            packed_data = struct.pack('<ffff', robot.x, robot.y, robot.z, robot.phi)
+            
             try:
-                sock.sendto(msg.encode(), (UDP_IP, UDP_PORT))
+                sock.sendto(packed_data, (UDP_IP, UDP_PORT))
             except: pass
             
             # UI
-            cv2.putText(frame, f"Robot: {msg}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+            cv2.putText(frame, f"Robot: {robot}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+
 
     cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
     cv2.imshow("Virtual Mouse Robot Control", frame)
