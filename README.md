@@ -4,33 +4,75 @@ A portfolio project demonstrating real-time computer vision control of an Arduin
 
 ![System Architecture](https://via.placeholder.com/800x400?text=System+Architecture+ASCII+Representation)
 
-## Inspiration
-This project draws heavily from the design philosophy of **Intuitive Surgical** (creators of the da Vinci Surgical System). The goal was to abstract the complex kinematics of a 6-DOF robot behind a natural, gesture-based interface.
 
-Traditional robot control often involves tedious joint-by-joint manipulation. By implementing a **"Virtual Clutch"** and relative positioning system, this project achieves a level of fluidity where the user forgets they are controlling a robot and simply moves their hand—much like a surgeon operating a remote manipulator.
+## Table of Contents
+- [Motivation](#motivation)
+- [Field of View & Architecture](#field-of-view--architecture)
+  - [1. Vision Layer (Python)](#1-vision-layer-python)
+  - [2. Control Layer (C++)](#2-control-layer-c)
+  - [3. Firmware Layer (Arduino)](#3-firmware-layer-arduino)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Usage](#usage)
+- [Technical Details](#technical-details)
+  - [Inverse Kinematics](#inverse-kinematics)
+  - [Communication](#communication)
+- [License](#license)
+
+## Motivation
+
+Industrial and surgical robotic systems prioritize **intuitive human–machine interfaces** over direct joint-level control. Inspired by the design philosophy behind **Intuitive Surgical’s da Vinci system**, this project explores how natural hand gestures can be mapped to precise robotic motion while preserving safety and determinism.
+
+Rather than controlling individual joints, the user operates the arm through **relative end-effector motion**, allowing them to focus on intent instead of kinematics. A virtual clutch mechanism enables repositioning without unintended robot movement—mirroring interaction patterns used in professional teleoperation systems.
 
 ## Field of View & Architecture
 
--   **Vision Layer (Python)**: Tracks hand landmarks using MediaPipe. Maps 2D screen coordinates to 3D robot space. Streams target coordinates via UDP.
--   **Control Layer (C++)**: Listens for UDP packets. Solves 6-DOF Inverse Kinematics analytically. Commands the Arduino via Serial.
--   **Firmware (Arduino)**: Executes servo commands (Braccio Shield).
+### 1. Vision Layer (Python)
+- Tracks 21 hand landmarks using **MediaPipe**
+- Converts 2D screen coordinates into a normalized 3D workspace
+- Streams target pose data via **binary UDP packets**
+
+### 2. Control Layer (C++)
+- Receives UDP packets and validates inputs
+- Solves **6-DOF inverse kinematics analytically**
+- Enforces joint limits and workspace constraints
+- Streams servo commands to the Arduino using a compact binary protocol
+
+### 3. Firmware Layer (Arduino)
+- Runs on the Braccio Shield
+- Parses high-speed binary frames
+- Updates servo positions deterministically
 
 ## Features
 
--   **Analytical IK Solver**: Fast, exact geometric solution for the Braccio 6-DOF arm.
--   **Advanced Gesture Control**:
-    -   **Virtual Mouse**: Move your hand to move the robot (Relative Positioning).
-    -   **Clutch Mechanism**: Make a **FIST** to pause tracking and reposition your hand (like lifting a mouse).
-    -   **Pitch Mimicry**: The robot wrist tilts up/down to match your hand's orientation.
--   **Real-time Vision**: Low-latency UDP communication between Vision and Control layers.
--   **Safe Limits**: Enforced joint constraints and workspace boundaries.
--   **Binary Protocol**: Optimized "Bitmapping" protocol reduces bandwidth by ~80% and latency.
+- **Analytical Inverse Kinematics**
+  - Closed-form geometric solution (no numerical solvers)
+  - Predictable runtime and deterministic behavior
+
+- **Gesture-Based Control**
+  - **Relative Positioning**: Hand motion maps directly to end-effector motion
+  - **Virtual Clutch**: Make a fist to pause tracking and reposition your hand
+  - **Wrist Pitch Mimicry**: End-effector pitch follows hand orientation
+
+- **Low-Latency Communication**
+  - Binary UDP protocol (~80% smaller than text-based messages)
+  - High-speed serial communication (115200 baud)
+
+- **Safety Constraints**
+  - Joint angle limits enforced in software
+  - Workspace clamping to prevent self-collision or overextension
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
--   **Hardware**: Arduino Braccio Arm, Webcam.
+-   **Hardware**: 
+    - Arduino Braccio Arm
+    - Webcam
 -   **Software**:
     -   CMake & C++ Compiler (C++20 recommended)
     -   Python 3.x
@@ -87,7 +129,6 @@ The solver uses a geometric approach, decomposing the arm into:
 -   **Serial (Control -> Arduino)**: 7-byte Binary Frame (`[0xFF, Base, Shoulder, Elbow, WristV, WristR, Gripper]`).
 -   **Baud Rate**: 115200 bps (Up from 9600).
 
-## License
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
