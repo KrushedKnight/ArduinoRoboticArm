@@ -115,8 +115,8 @@ int main() {
     return 1;
   }
 
-  struct sockaddr_in servaddr {
-  }, cliaddr{};
+  struct sockaddr_in servaddr {};
+  struct sockaddr_in cliaddr {};
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = INADDR_ANY;
   servaddr.sin_port = htons(8080);

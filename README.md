@@ -28,7 +28,9 @@ A portfolio project demonstrating real-time computer vision control of an Arduin
 -   **Software**:
     -   CMake & C++ Compiler (C++20 recommended)
     -   Python 3.x
-    -   SDL2
+    -   MediaPipe
+    -   OpenCV
+    -   NumPy
 
 ### Installation
 
